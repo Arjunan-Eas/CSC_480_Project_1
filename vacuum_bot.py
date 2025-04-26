@@ -1,6 +1,7 @@
 import sys
 from collections import deque
 
+# Dictionary to match movement direction and cardinal direction
 DIRECTIONS = {(-1,0) : 'N', (1,0) : 'S', (0,-1) : 'W', (0,1) : 'E'}
 
 class Node:
@@ -12,7 +13,7 @@ class Node:
         self.prev = prev
 
 def world_parser():
-    with open(sys.argv[2], 'r', encoding="utf-16") as f:
+    with open(sys.argv[2], 'r') as f:
         # Read in data from the file
         columns = int(f.readline())
         rows = int(f.readline())
@@ -62,7 +63,8 @@ def depth_first(path: list, world: list, current_location: Node, rows: int, colu
 
             # Back track once recursive call returns. Moves in the opposite direction
             path.append(DIRECTIONS[(current_location.y - neighbor.y, current_location.x - neighbor.x)]) 
-    
+
+    # Returns path with entire traversal
     return path, current_location, visited, nodes_generated, nodes_expanded
 
 
@@ -90,6 +92,7 @@ def uniform_cost(world: list, vacuum_start: Node, rows: int, columns: int):
         while(len(queue) != 0):        
             current_location = queue.popleft()
             visited.append(current_location.coords)
+            
             # If node is traversed, it is considered expanded
             nodes_expanded += 1
 
@@ -154,7 +157,7 @@ if __name__ == "__main__":
         # Starts recursive DFS on the world. Returns the entire traversal
         path, current_location, visited, nodes_generated, nodes_expanded = depth_first([], world, vacuum_start, rows, columns, [], 0, 0)
         
-        # We only care about traversing until the last vacuum
+        # Path returned inlcudes the entire traversal
         for i in range(len(path)):
             # Finds last vacuuming action
             if path[len(path) - i - 1] == "V":
@@ -162,7 +165,6 @@ if __name__ == "__main__":
                 # Note that we are guarenteed this is the last vacuuming action because the whole graph was traversed
                 path = path[:len(path) - i]
                 break
-
         # Prints out moves sequentially
         for move in path:
             print(move)
@@ -174,7 +176,7 @@ if __name__ == "__main__":
         world, vacuum_start, rows, columns = world_parser()
 
         path, nodes_generated, nodes_expanded = uniform_cost(world, vacuum_start, rows, columns)
-
+        # Returns 
         for dir in path:
             print(dir)
         print(f"Nodes generated: {nodes_generated}")
